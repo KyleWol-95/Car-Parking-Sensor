@@ -23,26 +23,12 @@ The system connects the DE10-Lite board to an HC-SR04 ultrasonic distance sensor
 ## System Architecture & Module Breakdown
 
 * **`fpga_parking_assist.v`**: Top-level module interconnecting clock networks, PLL IP core, sensor driver, FIR filter, display decoder, and VGA graphics generators.
-
-
 * **`ultrasonic_sensor.v`**: Generates a 10 µs trigger pulse and measures the echo pulse duration using 50 MHz clock ticks to compute distance in centimeters.
-
-
 * **`moving_average.v`**: Implements an 8-sample moving average filter using an array pipeline and bit-shifting (`>> 3`) to eliminate sensor jitter and environmental noise.
-
-
-* **`buzzer_alarm.v`**: Generates multi-rate audio warning produce beeps by tapping specific counter bit flips to scale frequency with distance.
-
-
+* **`buzzer_alarm.v`**: Generates multi-rate audio warnings by tapping specific counter bit flips to scale frequency with distance.
 * **`vga_sync.v` & `vga_drawer.v**`: Synthesizes 640x480 @ 60Hz VGA timing and dynamically draws a centered target box that expands and shifts color gradients based on proximity.
-
-
-* **`display_driver.v` & `bcd_to_7seg.v**`: Converts distance binary values into Binary Coded Decimal (BCD) and drives three active-low 7-segment displays.
-
-
+* **`display_driver.v` & `bcd_to_7seg.v**`: Converts binary distance values into Binary Coded Decimal (BCD) and drives three active-low 7-segment displays.
 * **`vga_pll.v` & `vga_pll_bb.v**`: Intel ALTPLL IP core module synthesizing the required 25 MHz pixel clock from the 50 MHz onboard clock.
-
-
 
 ---
 
@@ -50,26 +36,10 @@ The system connects the DE10-Lite board to an HC-SR04 ultrasonic distance sensor
 
 | Distance Range | Danger Level | Audio Alarm Rate | VGA Visual Box Indicator |
 | --- | --- | --- | --- |
-| $\ge 40\text{ cm}$ | Green Zone | Silent (No Beep)
-
- | Small centered box, Solid Green
-
- |
-| $25\text{ cm} - 39\text{ cm}$ | Yellow Zone | Slow Beep (~0.6s pulse)
-
- | Medium box, Green-to-Yellow gradient
-
- |
-| $15\text{ cm} - 24\text{ cm}$ | Orange Zone | Medium Beep (~0.15s pulse)
-
- | Expanding box, Yellow-to-Orange gradient
-
- |
-| $< 15\text{ cm}$ | Red Zone | Fast Beep (~0.04s pulse)
-
- | Full-size box, Solid Red alert
-
- |
+| $\ge 40\text{ cm}$ | Green Zone | Silent (No Beep) | Small centered box, Solid Green |
+| $25\text{ cm} - 39\text{ cm}$ | Yellow Zone | Slow Beep (~0.6s pulse) | Medium box, Green-to-Yellow gradient |
+| $15\text{ cm} - 24\text{ cm}$ | Orange Zone | Medium Beep (~0.15s pulse) | Expanding box, Yellow-to-Orange gradient |
+| $< 15\text{ cm}$ | Red Zone | Fast Beep (~0.04s pulse) | Full-size box, Solid Red alert |
 
 ### Proximity Visual States
 
@@ -87,33 +57,15 @@ The system connects the DE10-Lite board to an HC-SR04 ultrasonic distance sensor
 
 | Signal Name | FPGA Pin | Hardware Component | Function |
 | --- | --- | --- | --- |
-| `CLOCK_50` | `PIN_P11` | Onboard Oscillator | 50 MHz System Clock
-
- |
-| `KEY[0]` | `PIN_B8` | Pushbutton 0 | Active-Low System Reset
-
- |
-| `SW[0]` | `PIN_C10` | Slide Switch 0 | Filter Toggle (`0`: Raw, `1`: Filtered)
-
- |
-| `ARDUINO_IO[0]` | `PIN_AB5` | Breadboard Header | Ultrasonic Trigger Pulse Output
-
- |
-| `ARDUINO_IO[1]` | `PIN_AB6` | Breadboard Header | Ultrasonic Echo Input (3.3V Shifted)
-
- |
-| `ARDUINO_IO[2]` | `PIN_AB7` | Breadboard Header | Piezoelectric Buzzer Output
-
- |
-| `HEX0` – `HEX2` | Multiple | 7-Segment Displays | Active-Low Numeric Distance Readout (cm)
-
- |
-| `VGA_R[3:0]`, `G[3:0]`, `B[3:0]` | Multiple | VGA Port | 4-bit RGB Color Channels
-
- |
-| `VGA_HS`, `VGA_VS` | Multiple | VGA Port | Horizontal & Vertical Sync Signals
-
- |
+| `CLOCK_50` | `PIN_P11` | Onboard Oscillator | 50 MHz System Clock |
+| `KEY[0]` | `PIN_B8` | Pushbutton 0 | Active-Low System Reset |
+| `SW[0]` | `PIN_C10` | Slide Switch 0 | Filter Toggle (`0`: Raw, `1`: Filtered) |
+| `ARDUINO_IO[0]` | `PIN_AB5` | Breadboard Header | Ultrasonic Trigger Pulse Output |
+| `ARDUINO_IO[1]` | `PIN_AB6` | Breadboard Header | Ultrasonic Echo Input (3.3V Shifted) |
+| `ARDUINO_IO[2]` | `PIN_AB7` | Breadboard Header | Piezoelectric Buzzer Output |
+| `HEX0` – `HEX2` | Multiple | 7-Segment Displays | Active-Low Numeric Distance Readout (cm) |
+| `VGA_R[3:0]`, `G[3:0]`, `B[3:0]` | Multiple | VGA Port | 4-bit RGB Color Channels |
+| `VGA_HS`, `VGA_VS` | Multiple | VGA Port | Horizontal & Vertical Sync Signals |
 
 ---
 
@@ -122,11 +74,11 @@ The system connects the DE10-Lite board to an HC-SR04 ultrasonic distance sensor
 ```text
 ├── assets/
 │   ├── demo.gif
-│   ├── circuit_setup.jpg
-│   ├── green_zone.jpg
-│   ├── yellow_zone.jpg
-│   ├── orange_zone.jpg
-│   └── red_zone.jpg
+│   ├── circuit_setup.jpeg
+│   ├── green_zone.jpeg
+│   ├── yellow_zone.jpeg
+│   ├── orange_zone.jpeg
+│   └── red_zone.jpeg
 ├── bcd_to_7seg.v
 ├── buzzer_alarm.v
 ├── display_driver.v
@@ -149,10 +101,8 @@ The system connects the DE10-Lite board to an HC-SR04 ultrasonic distance sensor
 ## Build & Synthesis Instructions
 
 1. Open Intel Quartus Prime (Lite Edition).
-2. Click **File** > **Open Project** and select `fpga_parking_assist.qpf`.
-3. Ensure the target device is set to **MAX 10 10M50DAF484C7G**.
-
-
-4. Connect the DE10-Lite board via USB Blaster.
+2. Select **File** > **Open Project** and open `fpga_parking_assist.qpf`.
+3. Confirm the target FPGA device is set to **MAX 10 10M50DAF484C7G**.
+4. Connect the DE10-Lite FPGA board via USB Blaster.
 5. Click **Processing** > **Start Compilation** (`Ctrl + L`).
-6. Open the **Programmer** (`Tools` > `Programmer`), select your hardware setup, and load `fpga_parking_assist.sof` onto the board.
+6. Open **Tools** > **Programmer**, verify hardware detection, and flash `fpga_parking_assist.sof` to the FPGA.
